@@ -1,7 +1,7 @@
 # Campus Intranet: Mini DNS Server with Local Website Hosting
 
 [![Cisco Packet Tracer](https://img.shields.io/badge/Cisco_Packet_Tracer-v8.2%2B-blue?logo=cisco&logoColor=white)](https://www.netacad.com/courses/packet-tracer)
-[![Course](https://img.shields.io/badge/Course-Computer_Networks_(5CN)-green)](https://en.wikipedia.org/wiki/Computer_network)
+[![Course](https://img.shields.io/badge/Course-Computer_Networks_(CN)-green)](https://en.wikipedia.org/wiki/Computer_network)
 [![Protocols](https://img.shields.io/badge/Protocols-DNS%20|%20HTTP%20|%20TCP%20|%20UDP-orange)](#protocol-stack--ports)
 [![Topology](https://img.shields.io/badge/Topology-Star%20(802.3)-purple)](#network-topology)
 
