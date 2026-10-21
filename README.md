@@ -14,9 +14,6 @@ A complete **Computer Networks (5CN)** mini-project simulating an isolated enter
 ```bash
 ├── miniproj.pkt                        # Cisco Packet Tracer lab project file
 ├── Project_Report.docx                 # Formatted academic Word submission report
-├── Project_Report.html                 # Browser-viewable / 1-click printable PDF report
-├── Computer_Networks_Mini_Project_Report.md  # Detailed markdown technical report
-├── build_word_report.py                # Python automation script generating the docx report
 └── README.md                           # Repository documentation (this file)
 ```
 
