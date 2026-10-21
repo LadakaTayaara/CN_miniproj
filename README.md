@@ -5,7 +5,7 @@
 [![Protocols](https://img.shields.io/badge/Protocols-DNS%20|%20HTTP%20|%20TCP%20|%20UDP-orange)](#protocol-stack--ports)
 [![Topology](https://img.shields.io/badge/Topology-Star%20(802.3)-purple)](#network-topology)
 
-A complete **Computer Networks (5CN)** mini-project simulating an isolated enterprise/campus intranet in **Cisco Packet Tracer**. The project deploys a private Domain Name System (DNS) resolver alongside a dedicated Hypertext Transfer Protocol (HTTP) server, allowing departmental client workstations to access internal portals (`http://dept.campus.local`) with zero dependency on external WAN/Internet connections.
+A complete **Computer Networks (5CN)** mini-project simulating an isolated enterprise/campus intranet in **Cisco Packet Tracer**. The project deploys a private Domain Name System (DNS) resolver alongside a dedicated Hypertext Transfer Protocol (HTTP) server, allowing departmental client workstations to access internal portals (`http://localrec`) with zero dependency on external WAN/Internet connections.
 
 ---
 
@@ -61,8 +61,8 @@ Configured inside **`DNS-Server`** &rarr; **Services** &rarr; **DNS** (Service: 
 
 | Domain Name / Record | Record Type | Target / Resolved IP | Function |
 | :--- | :---: | :--- | :--- |
-| `dept.campus.local` | `A Record` | `192.168.1.20` | Resolves canonical domain to Web Server IP |
-| `www.dept.campus.local` | `CNAME` | `dept.campus.local` | Alias pointing `www` prefix to canonical name |
+| `localrec` | `A Record` | `192.168.1.20` | Resolves canonical domain to Web Server IP |
+| `www.localrec` | `CNAME` | `localrec` | Alias pointing `www` prefix to canonical name |
 
 ---
 
@@ -90,14 +90,14 @@ ping 192.168.1.20
 #### B. DNS Name Resolution Test
 In **PC0**'s Command Prompt:
 ```cmd
-nslookup dept.campus.local
+nslookup localrec
 ```
 *Expected Output:*
 ```text
 Server:  192.168.1.10
 Address: 192.168.1.10
 
-Name:    dept.campus.local
+Name:    localrec
 Address: 192.168.1.20
 ```
 
@@ -105,7 +105,7 @@ Address: 192.168.1.20
 1. Open **PC0** or **PC1** &rarr; **Desktop** &rarr; **Web Browser**.
 2. In the URL bar, type:
    ```text
-   http://dept.campus.local
+   http://localrec
    ```
 3. Click **Go**. The customized *"Welcome to Campus Departmental Intranet"* portal will render.
 
@@ -116,7 +116,7 @@ Address: 192.168.1.20
 To observe packet flow under the hood:
 1. Toggle to **Simulation Mode** (`Shift + S`) in the bottom-right corner.
 2. Click **Edit Filters** &rarr; enable only `DNS` and `HTTP` (or add `TCP`).
-3. In **PC1**'s Web Browser, enter `http://dept.campus.local` and click **Go**.
+3. In **PC1**'s Web Browser, enter `http://localrec` and click **Go**.
 4. Step forward using the **Capture / Forward** button:
 
 ```text
@@ -135,23 +135,6 @@ To observe packet flow under the hood:
     │
 [Browser Renders Departmental Portal]
 ```
-
----
-
-## 🛠️ Regenerating the Reports
-
-If you edit the Python report generator script:
-```powershell
-# Install python-docx if not already present
-pip install python-docx
-
-# Rebuild the Word report
-python build_word_report.py
-```
-
-To generate a PDF report:
-- Open `Project_Report.html` in Chrome or Edge.
-- Press `Ctrl + P` &rarr; Destination: **Save as PDF** &rarr; Margins: **Default** &rarr; **Save**.
 
 ---
 
