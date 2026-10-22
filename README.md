@@ -110,7 +110,7 @@ minip/
 ├── load_balancer.py    # Layer-7 Reverse Proxy, health monitor, telemetry, & admin API
 ├── run_cluster.py      # Master cluster orchestrator (spawns 4 nodes + LB with colored logs)
 ├── static/
-│   └── index.html      # Dark-mode telemetry control dashboard UI
+│   └── index.html      # Real-time telemetry control dashboard UI (white & red enterprise theme)
 ├── test_lb.py          # Automated test suite (algorithm units, router, and integration tests)
 ├── requirements.txt    # Python dependencies (aiohttp, pytest, pytest-asyncio)
 ├── run_project.bat     # 1-Click Windows launcher script

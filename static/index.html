@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +14,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -23,10 +22,16 @@
           },
           colors: {
             brand: {
-              50: '#eef2ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
+              50: '#fef2f2',
+              100: '#fee2e2',
+              200: '#fecaca',
+              300: '#fca5a5',
+              400: '#f87171',
+              500: '#ef4444',
+              600: '#dc2626',
+              700: '#b91c1c',
+              800: '#991b1b',
+              900: '#7f1d1d',
             }
           }
         }
@@ -38,91 +43,100 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
-    /* Custom Scrollbar for Terminal */
+    /* Clean Light Scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #090d16;
+      background: #f1f5f9;
     }
     ::-webkit-scrollbar-thumb {
-      background: #1e293b;
+      background: #cbd5e1;
       border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
+      background: #94a3b8;
     }
-    .pulse-glow-emerald {
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+
+    .card-base {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
     }
-    .pulse-glow-rose {
-      box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+    .card-base:hover {
+      border-color: #cbd5e1;
     }
-    .pulse-glow-cyan {
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.35);
-    }
-    .glass-card {
-      background: rgba(15, 23, 42, 0.75);
+
+    .header-bar {
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-bottom: 1px solid #e2e8f0;
     }
-    .glass-header {
-      background: rgba(10, 15, 30, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+
+    /* Algorithm Button States */
+    .algo-btn {
+      transition: all 0.15s ease-in-out;
+    }
+    .algo-btn.active {
+      background-color: #dc2626 !important;
+      border-color: #dc2626 !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+    }
+    .algo-btn.active .algo-sub {
+      color: #fee2e2 !important;
     }
   </style>
 </head>
 
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased selection:bg-red-500 selection:text-white">
 
-  <!-- Top Glass Navigation Bar -->
-  <header class="sticky top-0 z-50 glass-header px-6 py-3.5">
+  <!-- Top Navigation Bar (White & Red Enterprise Theme) -->
+  <header class="sticky top-0 z-50 header-bar px-6 py-3.5">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center space-x-3">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-cyan-500 to-emerald-400 p-[2px] shadow-lg shadow-indigo-500/20">
-          <div class="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
+        <div class="h-10 w-10 rounded-xl bg-red-600 flex items-center justify-center text-white shadow-md shadow-red-600/20">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            <h1 class="text-lg font-extrabold tracking-tight text-slate-900">
               Dynamic Load Balancer & Health Monitor
             </h1>
-            <span class="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+            <span class="text-[10px] uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
               Layer-7 Reverse Proxy
             </span>
           </div>
-          <p class="text-xs text-slate-400 font-mono">aiohttp async core • :8080 • Active Health Check 2.0s</p>
+          <p class="text-xs text-slate-500 font-mono">aiohttp async core • :8080 • Active Health Check 2.0s</p>
         </div>
       </div>
 
       <!-- Quick Action Right Bar -->
       <div class="flex items-center space-x-3">
-        <button id="btn-reset-stats" onclick="resetStats()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-xs font-medium text-slate-300 hover:text-white border border-slate-700/60 transition-all duration-150">
-          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="btn-reset-stats" onclick="resetStats()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 hover:text-slate-900 border border-slate-300 shadow-xs transition-all duration-150">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           <span>Reset Stats</span>
         </button>
 
-        <a href="/" target="_blank" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-xs font-semibold text-indigo-300 border border-indigo-500/40 transition-all duration-150">
+        <a href="/" target="_blank" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-xs font-semibold text-white shadow-xs transition-all duration-150">
           <span>Test Client GET /</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         </a>
 
-        <div class="flex items-center space-x-2 pl-2 border-l border-slate-800">
+        <div class="flex items-center space-x-2 pl-3 border-l border-slate-200">
           <span class="relative flex h-2.5 w-2.5">
             <span id="live-ping-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span id="live-ping-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
-          <span id="live-status-text" class="text-xs font-mono text-emerald-400 font-semibold">LIVE</span>
+          <span id="live-status-text" class="text-xs font-mono text-emerald-700 font-bold">LIVE</span>
         </div>
       </div>
     </div>
@@ -133,68 +147,68 @@
     <!-- 1. Top KPI Metric Cards Bar -->
     <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
       <!-- Active Algorithm -->
-      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Active Algorithm</span>
+      <div class="card-base p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono font-medium">Active Algorithm</span>
         <div class="mt-2 flex items-center">
-          <span id="kpi-algo-badge" class="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+          <span id="kpi-algo-badge" class="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200">
             ROUND_ROBIN
           </span>
         </div>
-        <span class="text-[10px] text-slate-500 mt-2 font-mono">Dynamic hot-swap</span>
+        <span class="text-[10px] text-slate-400 mt-2 font-mono">Dynamic hot-swap</span>
       </div>
 
       <!-- Total Requests -->
-      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Total Requests</span>
+      <div class="card-base p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono font-medium">Total Requests</span>
         <div class="mt-1">
-          <span id="kpi-total-requests" class="text-2xl font-black font-mono tracking-tight text-white">0</span>
+          <span id="kpi-total-requests" class="text-2xl font-black font-mono tracking-tight text-slate-900">0</span>
         </div>
-        <div class="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
+        <div class="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
           <span>Retries:</span>
-          <span id="kpi-total-retries" class="text-amber-400 font-semibold">0</span>
+          <span id="kpi-total-retries" class="text-red-600 font-bold">0</span>
         </div>
       </div>
 
       <!-- Success Rate -->
-      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Success Rate</span>
+      <div class="card-base p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono font-medium">Success Rate</span>
         <div class="mt-1 flex items-baseline gap-1">
-          <span id="kpi-success-rate" class="text-2xl font-black font-mono tracking-tight text-emerald-400">100.0</span>
+          <span id="kpi-success-rate" class="text-2xl font-black font-mono tracking-tight text-emerald-600">100.0</span>
           <span class="text-xs text-slate-400 font-mono">%</span>
         </div>
-        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden border border-slate-200/50">
           <div id="kpi-success-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: 100%"></div>
         </div>
       </div>
 
       <!-- Cluster Avg Latency -->
-      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Cluster Latency</span>
+      <div class="card-base p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono font-medium">Cluster Latency</span>
         <div class="mt-1 flex items-baseline gap-1">
-          <span id="kpi-avg-latency" class="text-2xl font-black font-mono tracking-tight text-cyan-400">0.0</span>
-          <span class="text-xs text-slate-400 font-mono">ms</span>
+          <span id="kpi-avg-latency" class="text-2xl font-black font-mono tracking-tight text-slate-800">0.0</span>
+          <span class="text-xs text-slate-500 font-mono">ms</span>
         </div>
-        <span class="text-[10px] text-slate-500 font-mono">Moving avg (100 req)</span>
+        <span class="text-[10px] text-slate-400 font-mono">Moving avg (100 req)</span>
       </div>
 
       <!-- In-Flight Active Connections -->
-      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Active In-Flight</span>
+      <div class="card-base p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono font-medium">Active In-Flight</span>
         <div class="mt-1 flex items-baseline gap-1.5">
-          <span id="kpi-active-conns" class="text-2xl font-black font-mono tracking-tight text-violet-400">0</span>
+          <span id="kpi-active-conns" class="text-2xl font-black font-mono tracking-tight text-red-600">0</span>
           <span class="text-xs text-slate-400 font-mono">conns</span>
         </div>
-        <span class="text-[10px] text-slate-500 font-mono">Async concurrent load</span>
+        <span class="text-[10px] text-slate-400 font-mono">Async concurrent load</span>
       </div>
 
       <!-- Healthy Nodes -->
-      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Healthy Pool</span>
+      <div class="card-base p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono font-medium">Healthy Pool</span>
         <div class="mt-1 flex items-baseline gap-1">
-          <span id="kpi-healthy-nodes" class="text-2xl font-black font-mono tracking-tight text-emerald-400">4</span>
-          <span class="text-sm text-slate-500 font-mono font-bold">/ 4</span>
+          <span id="kpi-healthy-nodes" class="text-2xl font-black font-mono tracking-tight text-emerald-600">4</span>
+          <span class="text-sm text-slate-400 font-mono font-bold">/ 4</span>
         </div>
-        <span id="kpi-cluster-health-text" class="text-[10px] text-emerald-400/90 font-mono font-semibold">100% Operational</span>
+        <span id="kpi-cluster-health-text" class="text-[10px] text-emerald-700 font-mono font-semibold">100% Operational</span>
       </div>
     </section>
 
@@ -203,59 +217,59 @@
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       
       <!-- Left: Algorithm Switcher -->
-      <div class="lg:col-span-6 glass-card rounded-xl p-5 flex flex-col justify-between">
+      <div class="lg:col-span-6 card-base p-5 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-3">
-            <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
-              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-700 flex items-center gap-2">
+              <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
               Routing Algorithm Selector
             </h2>
-            <span class="text-[11px] text-indigo-400 font-mono">Zero-Downtime Hot Swap</span>
+            <span class="text-[11px] text-red-600 font-mono font-semibold">Zero-Downtime Hot Swap</span>
           </div>
           
           <div class="grid grid-cols-3 gap-2">
             <!-- Round Robin -->
             <button onclick="setAlgorithm('round_robin')" id="algo-btn-round_robin"
-              class="algo-btn px-3 py-3 rounded-xl border border-indigo-500/40 bg-indigo-600/20 text-indigo-200 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-sm">
+              class="algo-btn px-3 py-3 rounded-xl border border-red-600 bg-red-600 text-white font-medium text-xs flex flex-col items-center justify-center gap-1.5 shadow-sm">
               <span class="font-bold text-sm">Round-Robin</span>
-              <span class="text-[10px] text-slate-400 font-mono">Sequential (i+1)%N</span>
+              <span class="text-[10px] text-red-100 font-mono algo-sub">Sequential (i+1)%N</span>
             </button>
 
             <!-- Weighted Round Robin -->
             <button onclick="setAlgorithm('weighted_round_robin')" id="algo-btn-weighted_round_robin"
-              class="algo-btn px-3 py-3 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:border-slate-600 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-sm">
+              class="algo-btn px-3 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 font-medium text-xs flex flex-col items-center justify-center gap-1.5 shadow-xs">
               <span class="font-bold text-sm">Smooth WRR</span>
-              <span class="text-[10px] text-slate-400 font-mono">NGINX Interleaved</span>
+              <span class="text-[10px] text-slate-500 font-mono algo-sub">NGINX Interleaved</span>
             </button>
 
             <!-- Least Connections -->
             <button onclick="setAlgorithm('least_connections')" id="algo-btn-least_connections"
-              class="algo-btn px-3 py-3 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:border-slate-600 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-sm">
+              class="algo-btn px-3 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 font-medium text-xs flex flex-col items-center justify-center gap-1.5 shadow-xs">
               <span class="font-bold text-sm">Least-Connections</span>
-              <span class="text-[10px] text-slate-400 font-mono">Active load tie-break</span>
+              <span class="text-[10px] text-slate-500 font-mono algo-sub">Active load tie-break</span>
             </button>
           </div>
         </div>
 
-        <p id="algo-description" class="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-800/80 font-mono">
+        <p id="algo-description" class="text-[11px] text-slate-600 mt-3 pt-3 border-t border-slate-100 font-mono">
           Distributes incoming client requests sequentially across all currently healthy backend nodes.
         </p>
       </div>
 
       <!-- Right: Traffic Generator & Stress Tester -->
-      <div class="lg:col-span-6 glass-card rounded-xl p-5 flex flex-col justify-between">
+      <div class="lg:col-span-6 card-base p-5 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-3">
-            <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
-              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-700 flex items-center gap-2">
+              <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               Live Traffic Generator & Stress Tester
             </h2>
-            <div id="traffic-status-pill" class="hidden items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono border border-cyan-500/40">
-              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <div id="traffic-status-pill" class="hidden items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-mono border border-red-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
               <span id="traffic-status-text">Streaming</span>
             </div>
           </div>
@@ -263,30 +277,30 @@
           <div class="grid grid-cols-3 gap-2.5">
             <!-- 50 Concurrent -->
             <button onclick="fireBatchTraffic(50)" id="btn-fire-50"
-              class="px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all">
-              <span class="font-mono text-cyan-400 font-bold">50 Requests</span>
-              <span class="text-[10px] text-slate-400 font-normal">Concurrent Batch</span>
+              class="px-3 py-2.5 rounded-xl bg-white hover:bg-red-50 text-slate-800 border border-slate-200 hover:border-red-300 hover:text-red-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all shadow-xs">
+              <span class="font-mono text-red-600 font-bold">50 Requests</span>
+              <span class="text-[10px] text-slate-500 font-normal">Concurrent Batch</span>
             </button>
 
             <!-- 200 Concurrent -->
             <button onclick="fireBatchTraffic(200)" id="btn-fire-200"
-              class="px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all">
-              <span class="font-mono text-violet-400 font-bold">200 Requests</span>
-              <span class="text-[10px] text-slate-400 font-normal">High Concurrency</span>
+              class="px-3 py-2.5 rounded-xl bg-white hover:bg-red-50 text-slate-800 border border-slate-200 hover:border-red-300 hover:text-red-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all shadow-xs">
+              <span class="font-mono text-red-700 font-bold">200 Requests</span>
+              <span class="text-[10px] text-slate-500 font-normal">High Concurrency</span>
             </button>
 
             <!-- Continuous Stream Toggle -->
             <button onclick="toggleContinuousStream()" id="btn-stream-toggle"
-              class="px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all">
-              <span id="stream-btn-label" class="font-mono text-emerald-400 font-bold">Stream: OFF</span>
-              <span class="text-[10px] text-slate-400 font-normal">10 req / sec</span>
+              class="px-3 py-2.5 rounded-xl bg-white hover:bg-red-50 text-slate-800 border border-slate-200 hover:border-red-300 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all shadow-xs">
+              <span id="stream-btn-label" class="font-mono text-slate-800 font-bold">Stream: OFF</span>
+              <span class="text-[10px] text-slate-500 font-normal">10 req / sec</span>
             </button>
           </div>
         </div>
 
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
-          <span>Dispatched in session: <strong id="traffic-dispatched-counter" class="text-white">0</strong></span>
-          <span id="traffic-progress-indicator" class="text-slate-500">Idle</span>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
+          <span>Dispatched in session: <strong id="traffic-dispatched-counter" class="text-slate-900 font-bold">0</strong></span>
+          <span id="traffic-progress-indicator" class="text-slate-400">Idle</span>
         </div>
       </div>
     </section>
@@ -295,13 +309,13 @@
     <!-- 3. Backend Nodes Interactive Cluster Cards (4 Nodes) -->
     <section>
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-700 flex items-center gap-2">
+          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
           </svg>
           Backend Server Cluster (Ports 8001 - 8004)
         </h2>
-        <span class="text-[11px] text-slate-400 font-mono">Independent aiohttp processes</span>
+        <span class="text-[11px] text-slate-500 font-mono">Independent aiohttp processes</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="nodes-container">
@@ -314,15 +328,15 @@
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       
       <!-- Left: Request Distribution Bar Chart -->
-      <div class="lg:col-span-5 glass-card rounded-xl p-5 flex flex-col">
+      <div class="lg:col-span-5 card-base p-5 flex flex-col">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
-            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h3 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-700 flex items-center gap-2">
+            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             Cluster Traffic Distribution
           </h3>
-          <span class="text-[11px] font-mono text-slate-400" id="chart-total-label">0 total</span>
+          <span class="text-[11px] font-mono text-slate-500" id="chart-total-label">0 total</span>
         </div>
         <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
           <canvas id="distributionChart"></canvas>
@@ -330,33 +344,33 @@
       </div>
 
       <!-- Right: Live Scrolling Terminal Log -->
-      <div class="lg:col-span-7 glass-card rounded-xl p-5 flex flex-col">
-        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+      <div class="lg:col-span-7 card-base p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
           <div class="flex items-center space-x-2">
             <div class="flex space-x-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             </div>
-            <h3 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-300 ml-2">
+            <h3 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-700 ml-2">
               Routing & Failover Terminal
             </h3>
           </div>
 
           <div class="flex items-center space-x-2">
-            <label class="flex items-center space-x-1.5 text-[11px] font-mono text-slate-400 cursor-pointer select-none">
-              <input type="checkbox" id="autoscroll-toggle" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0">
+            <label class="flex items-center space-x-1.5 text-[11px] font-mono text-slate-500 cursor-pointer select-none">
+              <input type="checkbox" id="autoscroll-toggle" checked class="rounded border-slate-300 text-red-600 focus:ring-red-500">
               <span>Auto-scroll</span>
             </label>
-            <button onclick="clearTerminalLogs()" class="px-2 py-1 text-[10px] font-mono text-slate-400 hover:text-white rounded bg-slate-800 hover:bg-slate-700 border border-slate-700">
+            <button onclick="clearTerminalLogs()" class="px-2 py-1 text-[10px] font-mono text-slate-600 hover:text-slate-900 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors">
               Clear
             </button>
           </div>
         </div>
 
-        <!-- Terminal Output Body -->
-        <div id="terminal-body" class="bg-[#090d16] border border-slate-800/80 rounded-lg p-3.5 h-[270px] overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5">
-          <div class="text-slate-500 italic">Connected to telemetry event stream. Awaiting requests...</div>
+        <!-- Terminal Output Body (Clean Dark Console embedded in White Card) -->
+        <div id="terminal-body" class="bg-slate-900 border border-slate-800 rounded-lg p-3.5 h-[270px] overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 text-slate-200">
+          <div class="text-slate-400 italic">Connected to telemetry event stream. Awaiting requests...</div>
         </div>
       </div>
 
@@ -380,12 +394,12 @@
       'least_connections': 'Selects the HEALTHY server with minimum active in-flight connections. Tie-breaks by lowest latency and higher weight.'
     };
 
-    // Node card color accents
+    // Node card color accents (Red, Crimson, Burgundy, Coral theme)
     const NODE_COLORS = {
-      'node-1': { border: 'border-indigo-500/30', bg: 'bg-indigo-500/10', text: 'text-indigo-400', chart: '#6366f1' },
-      'node-2': { border: 'border-cyan-500/30', bg: 'bg-cyan-500/10', text: 'text-cyan-400', chart: '#06b6d4' },
-      'node-3': { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', text: 'text-emerald-400', chart: '#10b981' },
-      'node-4': { border: 'border-amber-500/30', bg: 'bg-amber-500/10', text: 'text-amber-400', chart: '#f59e0b' },
+      'node-1': { border: 'border-red-200', bg: 'bg-red-600', text: 'text-red-700', badge: 'bg-red-50 text-red-700 border-red-200', chart: '#dc2626' },
+      'node-2': { border: 'border-orange-200', bg: 'bg-orange-600', text: 'text-orange-700', badge: 'bg-orange-50 text-orange-700 border-orange-200', chart: '#ea580c' },
+      'node-3': { border: 'border-rose-200', bg: 'bg-rose-700', text: 'text-rose-700', badge: 'bg-rose-50 text-rose-700 border-rose-200', chart: '#b91c1c' },
+      'node-4': { border: 'border-pink-200', bg: 'bg-pink-600', text: 'text-pink-700', badge: 'bg-pink-50 text-pink-700 border-pink-200', chart: '#e11d48' },
     };
 
     // Initialize Chart.js
@@ -399,16 +413,16 @@
             label: 'Requests Handled',
             data: [0, 0, 0, 0],
             backgroundColor: [
-              'rgba(99, 102, 241, 0.75)',
-              'rgba(6, 182, 212, 0.75)',
-              'rgba(16, 185, 129, 0.75)',
-              'rgba(245, 158, 11, 0.75)',
+              'rgba(220, 38, 38, 0.85)',   // Red 600
+              'rgba(234, 88, 12, 0.85)',   // Orange 600
+              'rgba(185, 28, 28, 0.85)',   // Red 700
+              'rgba(225, 29, 72, 0.85)',   // Rose 600
             ],
             borderColor: [
-              '#6366f1',
-              '#06b6d4',
-              '#10b981',
-              '#f59e0b',
+              '#dc2626',
+              '#ea580c',
+              '#b91c1c',
+              '#e11d48',
             ],
             borderWidth: 1.5,
             borderRadius: 6,
@@ -437,13 +451,13 @@
           },
           scales: {
             x: {
-              grid: { color: 'rgba(51, 65, 85, 0.2)' },
-              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+              grid: { color: 'rgba(226, 232, 240, 0.8)' },
+              ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } }
             },
             y: {
               beginAtZero: true,
-              grid: { color: 'rgba(51, 65, 85, 0.2)' },
-              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 }, precision: 0 }
+              grid: { color: 'rgba(226, 232, 240, 0.8)' },
+              ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 }, precision: 0 }
             }
           }
         }
@@ -459,12 +473,12 @@
         currentMetrics = data;
         updateUI(data);
         document.getElementById('live-status-text').textContent = 'LIVE';
-        document.getElementById('live-status-text').className = 'text-xs font-mono text-emerald-400 font-semibold';
+        document.getElementById('live-status-text').className = 'text-xs font-mono text-emerald-700 font-bold';
         document.getElementById('live-ping-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500';
       } catch (err) {
         document.getElementById('live-status-text').textContent = 'DISCONNECTED';
-        document.getElementById('live-status-text').className = 'text-xs font-mono text-rose-400 font-semibold';
-        document.getElementById('live-ping-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500';
+        document.getElementById('live-status-text').className = 'text-xs font-mono text-red-600 font-bold';
+        document.getElementById('live-ping-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600';
       }
     }
 
@@ -484,22 +498,25 @@
       const healthText = document.getElementById('kpi-cluster-health-text');
       if (healthPct === 100) {
         healthText.textContent = '100% Operational';
-        healthText.className = 'text-[10px] text-emerald-400 font-mono font-semibold';
+        healthText.className = 'text-[10px] text-emerald-700 font-mono font-semibold';
       } else if (healthPct >= 50) {
         healthText.textContent = `${data.healthy_count}/${data.total_nodes} Degraded`;
-        healthText.className = 'text-[10px] text-amber-400 font-mono font-semibold';
+        healthText.className = 'text-[10px] text-amber-700 font-mono font-semibold';
       } else {
         healthText.textContent = 'CRITICAL POOL FAILURE';
-        healthText.className = 'text-[10px] text-rose-400 font-mono font-bold animate-pulse';
+        healthText.className = 'text-[10px] text-red-600 font-mono font-bold animate-pulse';
       }
 
       // 2. Algorithm Button styles
       ['round_robin', 'weighted_round_robin', 'least_connections'].forEach(algo => {
         const btn = document.getElementById(`algo-btn-${algo}`);
+        const sub = btn.querySelector('.algo-sub');
         if (algo === data.algorithm) {
-          btn.className = 'algo-btn px-3 py-3 rounded-xl border border-indigo-500/60 bg-indigo-600/30 text-indigo-100 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-md shadow-indigo-500/20';
+          btn.className = 'algo-btn px-3 py-3 rounded-xl border border-red-600 bg-red-600 text-white font-medium text-xs flex flex-col items-center justify-center gap-1.5 shadow-sm';
+          if (sub) sub.className = 'text-[10px] text-red-100 font-mono algo-sub';
         } else {
-          btn.className = 'algo-btn px-3 py-3 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all';
+          btn.className = 'algo-btn px-3 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 font-medium text-xs flex flex-col items-center justify-center gap-1.5 shadow-xs';
+          if (sub) sub.className = 'text-[10px] text-slate-500 font-mono algo-sub';
         }
       });
       document.getElementById('algo-description').textContent = ALGO_DESCRIPTIONS[data.algorithm] || '';
@@ -526,34 +543,31 @@
       const container = document.getElementById('nodes-container');
       if (!nodes) return;
 
-      // Keep user inputs (sliders, weights) from flickering if user is currently interacting
-      const activeElement = document.activeElement ? document.activeElement.id : null;
-
       container.innerHTML = nodes.map(node => {
         const isHealthy = node.is_healthy;
-        const color = NODE_COLORS[node.id] || { border: 'border-slate-700', bg: 'bg-slate-800', text: 'text-slate-300' };
+        const color = NODE_COLORS[node.id] || { border: 'border-slate-300', bg: 'bg-red-600', text: 'text-slate-700' };
         const statusBadge = isHealthy 
-          ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 pulse-glow-emerald">
-               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> HEALTHY
+          ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HEALTHY
              </span>`
-          : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 pulse-glow-rose">
-               <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span> UNHEALTHY
+          : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-100 text-red-700 border border-red-300">
+               <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> UNHEALTHY
              </span>`;
 
         const killBtnText = node.is_crashed ? 'Recover Node' : 'Kill Node';
         const killBtnClass = node.is_crashed
-          ? 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border-emerald-500/40'
-          : 'bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border-rose-500/40';
+          ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+          : 'bg-red-50 hover:bg-red-100 text-red-700 border-red-200';
 
         return `
-          <div class="glass-card rounded-xl p-4.5 flex flex-col justify-between border ${isHealthy ? 'border-slate-800/90' : 'border-rose-900/60 bg-rose-950/20'} transition-all duration-200">
+          <div class="card-base p-4.5 flex flex-col justify-between border ${isHealthy ? 'border-slate-200' : 'border-red-300 bg-red-50/20'} transition-all duration-200">
             <!-- Header: Title & Status -->
             <div>
-              <div class="flex items-center justify-between pb-2.5 border-b border-slate-800/80">
+              <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
                 <div class="flex items-center space-x-2">
-                  <div class="w-2.5 h-2.5 rounded-sm ${color.bg} border ${color.border}"></div>
-                  <span class="font-mono font-bold text-sm text-white">${node.id.toUpperCase()}</span>
-                  <span class="font-mono text-xs text-slate-500">:${node.port}</span>
+                  <div class="w-2.5 h-2.5 rounded-full ${color.bg}"></div>
+                  <span class="font-mono font-bold text-sm text-slate-900">${node.id.toUpperCase()}</span>
+                  <span class="font-mono text-xs text-slate-400">:${node.port}</span>
                 </div>
                 <div>${statusBadge}</div>
               </div>
@@ -561,68 +575,68 @@
               <!-- Metrics Grid -->
               <div class="grid grid-cols-2 gap-2 my-3 text-xs font-mono">
                 <!-- Active In-Flight -->
-                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                <div class="bg-slate-50 rounded-lg p-2 border border-slate-200/80">
                   <span class="text-[10px] text-slate-500 block">ACTIVE CONNS</span>
-                  <span class="text-base font-bold ${node.active_connections > 0 ? 'text-cyan-400 animate-pulse' : 'text-slate-300'}">
+                  <span class="text-base font-bold ${node.active_connections > 0 ? 'text-red-600' : 'text-slate-800'}">
                     ${node.active_connections}
                   </span>
                 </div>
 
                 <!-- Handled Requests & Share -->
-                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                <div class="bg-slate-50 rounded-lg p-2 border border-slate-200/80">
                   <span class="text-[10px] text-slate-500 block">TOTAL (SHARE)</span>
                   <div class="flex items-baseline gap-1">
-                    <span class="text-base font-bold text-slate-200">${node.total_requests}</span>
-                    <span class="text-[10px] text-slate-400">(${node.request_share_pct}%)</span>
+                    <span class="text-base font-bold text-slate-900">${node.total_requests}</span>
+                    <span class="text-[10px] text-slate-500">(${node.request_share_pct}%)</span>
                   </div>
                 </div>
 
                 <!-- Last Latency -->
-                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                <div class="bg-slate-50 rounded-lg p-2 border border-slate-200/80">
                   <span class="text-[10px] text-slate-500 block">LAST LATENCY</span>
-                  <span class="text-xs font-semibold ${node.last_latency_ms > 200 ? 'text-amber-400' : 'text-emerald-400'}">
+                  <span class="text-xs font-semibold ${node.last_latency_ms > 200 ? 'text-red-600' : 'text-slate-800'}">
                     ${node.last_latency_ms.toFixed(1)} ms
                   </span>
                 </div>
 
                 <!-- Moving Avg Latency -->
-                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                <div class="bg-slate-50 rounded-lg p-2 border border-slate-200/80">
                   <span class="text-[10px] text-slate-500 block">AVG LATENCY</span>
-                  <span class="text-xs font-semibold text-slate-300">${node.avg_latency_ms.toFixed(1)} ms</span>
+                  <span class="text-xs font-semibold text-slate-700">${node.avg_latency_ms.toFixed(1)} ms</span>
                 </div>
               </div>
             </div>
 
             <!-- Interactive Controls -->
-            <div class="space-y-2.5 pt-2 border-t border-slate-800/80">
+            <div class="space-y-2.5 pt-2 border-t border-slate-100">
               
               <!-- Weight Control -->
               <div class="flex items-center justify-between text-xs font-mono">
-                <span class="text-slate-400 text-[11px]">Weight (1-10):</span>
+                <span class="text-slate-600 text-[11px] font-medium">Weight (1-10):</span>
                 <div class="flex items-center space-x-1.5">
-                  <button onclick="adjustWeight('${node.id}', ${node.weight - 1})" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">-</button>
-                  <span class="font-bold text-white px-1.5 w-6 text-center">${node.weight}</span>
-                  <button onclick="adjustWeight('${node.id}', ${node.weight + 1})" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">+</button>
+                  <button onclick="adjustWeight('${node.id}', ${node.weight - 1})" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center transition-colors">-</button>
+                  <span class="font-bold text-slate-900 px-1.5 w-6 text-center">${node.weight}</span>
+                  <button onclick="adjustWeight('${node.id}', ${node.weight + 1})" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center transition-colors">+</button>
                 </div>
               </div>
 
               <!-- Latency Injection -->
               <div>
                 <div class="flex items-center justify-between text-[11px] font-mono mb-1">
-                  <span class="text-slate-400">Latency Injection:</span>
-                  <span class="text-cyan-400 font-semibold">${node.delay_ms || 0} ms</span>
+                  <span class="text-slate-600 font-medium">Latency Injection:</span>
+                  <span class="text-red-600 font-bold">${node.delay_ms || 0} ms</span>
                 </div>
                 <div class="grid grid-cols-4 gap-1">
-                  <button onclick="setNodeLatency('${node.id}', 0)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 0 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">0ms</button>
-                  <button onclick="setNodeLatency('${node.id}', 100)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 100 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">100ms</button>
-                  <button onclick="setNodeLatency('${node.id}', 300)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 300 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">300ms</button>
-                  <button onclick="setNodeLatency('${node.id}', 800)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 800 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">800ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 0)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 0 ? 'bg-red-600 text-white font-bold border border-red-600 shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'}">0ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 100)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 100 ? 'bg-red-600 text-white font-bold border border-red-600 shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'}">100ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 300)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 300 ? 'bg-red-600 text-white font-bold border border-red-600 shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'}">300ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 800)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 800 ? 'bg-red-600 text-white font-bold border border-red-600 shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'}">800ms</button>
                 </div>
               </div>
 
               <!-- Kill / Recover Toggle Button -->
               <button onclick="toggleNodeCrash('${node.id}', ${!node.is_crashed})"
-                class="w-full py-1.5 rounded-lg border font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${killBtnClass}">
+                class="w-full py-1.5 rounded-lg border font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-xs ${killBtnClass}">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${node.is_crashed ? 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' : 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'}" />
                 </svg>
@@ -645,26 +659,26 @@
         let rowClass = 'text-slate-300';
 
         if (item.event_type === 'FAILOVER_DROP' || item.event_type === 'FAILOVER_CONN_ERR' || item.event_type === 'UNHEALTHY') {
-          rowClass = 'text-rose-300 bg-rose-950/30 px-1 rounded';
-          statusBadge = `<span class="text-rose-400 font-bold">[FAILOVER TRIGGERED]</span>`;
+          rowClass = 'text-red-300 bg-red-950/60 px-1.5 py-0.5 rounded';
+          statusBadge = `<span class="text-red-400 font-bold">[FAILOVER TRIGGERED]</span>`;
         } else if (item.event_type === 'FAILOVER_RECOVERED') {
-          rowClass = 'text-amber-300 bg-amber-950/20 px-1 rounded';
+          rowClass = 'text-amber-300 bg-amber-950/40 px-1.5 py-0.5 rounded';
           statusBadge = `<span class="text-amber-400 font-bold">[RECOVERED RETRY]</span>`;
         } else if (item.event_type === 'RECOVERED') {
           rowClass = 'text-emerald-300 font-bold';
           statusBadge = `<span class="text-emerald-400">[NODE ONLINE]</span>`;
         } else {
-          statusBadge = `<span class="text-emerald-400">${item.status_code} OK</span>`;
+          statusBadge = `<span class="text-emerald-400 font-medium">${item.status_code} OK</span>`;
         }
 
         return `
           <div class="flex flex-wrap items-baseline gap-1.5 ${rowClass}">
             <span class="text-slate-500 font-normal">[${item.timestamp}]</span>
-            <span class="text-indigo-400 font-semibold">Client</span>
+            <span class="text-red-400 font-semibold">Client</span>
             <span class="text-slate-500">&rarr;</span>
             <span class="text-slate-400">LB (${item.algorithm})</span>
             <span class="text-slate-500">&rarr;</span>
-            <span class="text-cyan-300 font-medium">${item.target_node}</span>
+            <span class="text-white font-medium">${item.target_node}</span>
             <span class="text-slate-600">|</span>
             ${statusBadge}
             <span class="text-slate-600">|</span>
@@ -680,7 +694,7 @@
     }
 
     function clearTerminalLogs() {
-      document.getElementById('terminal-body').innerHTML = '<div class="text-slate-500 italic">Terminal cleared.</div>';
+      document.getElementById('terminal-body').innerHTML = '<div class="text-slate-400 italic">Terminal cleared.</div>';
     }
 
     // -------------------------------------------------------------------------
@@ -757,7 +771,7 @@
     async function fireBatchTraffic(count) {
       const progressLabel = document.getElementById('traffic-progress-indicator');
       progressLabel.textContent = `Firing ${count} concurrent requests...`;
-      progressLabel.className = 'text-cyan-400 animate-pulse';
+      progressLabel.className = 'text-red-600 font-semibold animate-pulse';
 
       const requests = [];
       for (let i = 0; i < count; i++) {
@@ -772,7 +786,7 @@
       totalDispatchedCount += count;
       document.getElementById('traffic-dispatched-counter').textContent = totalDispatchedCount.toLocaleString();
       progressLabel.textContent = `Completed batch of ${count} requests`;
-      progressLabel.className = 'text-emerald-400';
+      progressLabel.className = 'text-emerald-700 font-semibold';
       fetchMetrics();
     }
 
@@ -785,7 +799,8 @@
         clearInterval(continuousStreamInterval);
         continuousStreamInterval = null;
         label.textContent = 'Stream: OFF';
-        label.className = 'font-mono text-emerald-400 font-bold';
+        label.className = 'font-mono text-slate-800 font-bold';
+        btn.className = 'px-3 py-2.5 rounded-xl bg-white hover:bg-red-50 text-slate-800 border border-slate-200 hover:border-red-300 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all shadow-xs';
         pill.classList.add('hidden');
         pill.classList.remove('flex');
         document.getElementById('traffic-progress-indicator').textContent = 'Stream stopped';
@@ -793,7 +808,8 @@
         pill.classList.remove('hidden');
         pill.classList.add('flex');
         label.textContent = 'Stream: ACTIVE';
-        label.className = 'font-mono text-rose-400 font-bold animate-pulse';
+        label.className = 'font-mono text-white font-bold animate-pulse';
+        btn.className = 'px-3 py-2.5 rounded-xl bg-red-600 text-white border border-red-600 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all shadow-sm';
         document.getElementById('traffic-progress-indicator').textContent = 'Streaming 10 req/s...';
 
         // Fire 1 request every 100ms = 10 req/s
