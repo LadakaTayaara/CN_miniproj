@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Load Balancer & Health Monitor | Layer-7 Reverse Proxy</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar for Terminal */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .pulse-glow-emerald {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+    }
+    .pulse-glow-rose {
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+    }
+    .pulse-glow-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.35);
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .glass-header {
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Glass Navigation Bar -->
+  <header class="sticky top-0 z-50 glass-header px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-cyan-500 to-emerald-400 p-[2px] shadow-lg shadow-indigo-500/20">
+          <div class="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+              Dynamic Load Balancer & Health Monitor
+            </h1>
+            <span class="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+              Layer-7 Reverse Proxy
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-mono">aiohttp async core • :8080 • Active Health Check 2.0s</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Right Bar -->
+      <div class="flex items-center space-x-3">
+        <button id="btn-reset-stats" onclick="resetStats()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-xs font-medium text-slate-300 hover:text-white border border-slate-700/60 transition-all duration-150">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Reset Stats</span>
+        </button>
+
+        <a href="/" target="_blank" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-xs font-semibold text-indigo-300 border border-indigo-500/40 transition-all duration-150">
+          <span>Test Client GET /</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+
+        <div class="flex items-center space-x-2 pl-2 border-l border-slate-800">
+          <span class="relative flex h-2.5 w-2.5">
+            <span id="live-ping-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span id="live-ping-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <span id="live-status-text" class="text-xs font-mono text-emerald-400 font-semibold">LIVE</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+
+    <!-- 1. Top KPI Metric Cards Bar -->
+    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      <!-- Active Algorithm -->
+      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Active Algorithm</span>
+        <div class="mt-2 flex items-center">
+          <span id="kpi-algo-badge" class="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+            ROUND_ROBIN
+          </span>
+        </div>
+        <span class="text-[10px] text-slate-500 mt-2 font-mono">Dynamic hot-swap</span>
+      </div>
+
+      <!-- Total Requests -->
+      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Total Requests</span>
+        <div class="mt-1">
+          <span id="kpi-total-requests" class="text-2xl font-black font-mono tracking-tight text-white">0</span>
+        </div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
+          <span>Retries:</span>
+          <span id="kpi-total-retries" class="text-amber-400 font-semibold">0</span>
+        </div>
+      </div>
+
+      <!-- Success Rate -->
+      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Success Rate</span>
+        <div class="mt-1 flex items-baseline gap-1">
+          <span id="kpi-success-rate" class="text-2xl font-black font-mono tracking-tight text-emerald-400">100.0</span>
+          <span class="text-xs text-slate-400 font-mono">%</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+          <div id="kpi-success-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: 100%"></div>
+        </div>
+      </div>
+
+      <!-- Cluster Avg Latency -->
+      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Cluster Latency</span>
+        <div class="mt-1 flex items-baseline gap-1">
+          <span id="kpi-avg-latency" class="text-2xl font-black font-mono tracking-tight text-cyan-400">0.0</span>
+          <span class="text-xs text-slate-400 font-mono">ms</span>
+        </div>
+        <span class="text-[10px] text-slate-500 font-mono">Moving avg (100 req)</span>
+      </div>
+
+      <!-- In-Flight Active Connections -->
+      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Active In-Flight</span>
+        <div class="mt-1 flex items-baseline gap-1.5">
+          <span id="kpi-active-conns" class="text-2xl font-black font-mono tracking-tight text-violet-400">0</span>
+          <span class="text-xs text-slate-400 font-mono">conns</span>
+        </div>
+        <span class="text-[10px] text-slate-500 font-mono">Async concurrent load</span>
+      </div>
+
+      <!-- Healthy Nodes -->
+      <div class="glass-card rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-mono font-medium">Healthy Pool</span>
+        <div class="mt-1 flex items-baseline gap-1">
+          <span id="kpi-healthy-nodes" class="text-2xl font-black font-mono tracking-tight text-emerald-400">4</span>
+          <span class="text-sm text-slate-500 font-mono font-bold">/ 4</span>
+        </div>
+        <span id="kpi-cluster-health-text" class="text-[10px] text-emerald-400/90 font-mono font-semibold">100% Operational</span>
+      </div>
+    </section>
+
+
+    <!-- 2. Interactive Control Bar: Algorithm Hot-Swap & Stress Testing Generator -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- Left: Algorithm Switcher -->
+      <div class="lg:col-span-6 glass-card rounded-xl p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              Routing Algorithm Selector
+            </h2>
+            <span class="text-[11px] text-indigo-400 font-mono">Zero-Downtime Hot Swap</span>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-2">
+            <!-- Round Robin -->
+            <button onclick="setAlgorithm('round_robin')" id="algo-btn-round_robin"
+              class="algo-btn px-3 py-3 rounded-xl border border-indigo-500/40 bg-indigo-600/20 text-indigo-200 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-sm">
+              <span class="font-bold text-sm">Round-Robin</span>
+              <span class="text-[10px] text-slate-400 font-mono">Sequential (i+1)%N</span>
+            </button>
+
+            <!-- Weighted Round Robin -->
+            <button onclick="setAlgorithm('weighted_round_robin')" id="algo-btn-weighted_round_robin"
+              class="algo-btn px-3 py-3 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:border-slate-600 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-sm">
+              <span class="font-bold text-sm">Smooth WRR</span>
+              <span class="text-[10px] text-slate-400 font-mono">NGINX Interleaved</span>
+            </button>
+
+            <!-- Least Connections -->
+            <button onclick="setAlgorithm('least_connections')" id="algo-btn-least_connections"
+              class="algo-btn px-3 py-3 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:border-slate-600 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-sm">
+              <span class="font-bold text-sm">Least-Connections</span>
+              <span class="text-[10px] text-slate-400 font-mono">Active load tie-break</span>
+            </button>
+          </div>
+        </div>
+
+        <p id="algo-description" class="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-800/80 font-mono">
+          Distributes incoming client requests sequentially across all currently healthy backend nodes.
+        </p>
+      </div>
+
+      <!-- Right: Traffic Generator & Stress Tester -->
+      <div class="lg:col-span-6 glass-card rounded-xl p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Live Traffic Generator & Stress Tester
+            </h2>
+            <div id="traffic-status-pill" class="hidden items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono border border-cyan-500/40">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span id="traffic-status-text">Streaming</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <!-- 50 Concurrent -->
+            <button onclick="fireBatchTraffic(50)" id="btn-fire-50"
+              class="px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all">
+              <span class="font-mono text-cyan-400 font-bold">50 Requests</span>
+              <span class="text-[10px] text-slate-400 font-normal">Concurrent Batch</span>
+            </button>
+
+            <!-- 200 Concurrent -->
+            <button onclick="fireBatchTraffic(200)" id="btn-fire-200"
+              class="px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all">
+              <span class="font-mono text-violet-400 font-bold">200 Requests</span>
+              <span class="text-[10px] text-slate-400 font-normal">High Concurrency</span>
+            </button>
+
+            <!-- Continuous Stream Toggle -->
+            <button onclick="toggleContinuousStream()" id="btn-stream-toggle"
+              class="px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all">
+              <span id="stream-btn-label" class="font-mono text-emerald-400 font-bold">Stream: OFF</span>
+              <span class="text-[10px] text-slate-400 font-normal">10 req / sec</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <span>Dispatched in session: <strong id="traffic-dispatched-counter" class="text-white">0</strong></span>
+          <span id="traffic-progress-indicator" class="text-slate-500">Idle</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- 3. Backend Nodes Interactive Cluster Cards (4 Nodes) -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+          </svg>
+          Backend Server Cluster (Ports 8001 - 8004)
+        </h2>
+        <span class="text-[11px] text-slate-400 font-mono">Independent aiohttp processes</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="nodes-container">
+        <!-- Rendered dynamically via JavaScript for real-time fidelity -->
+      </div>
+    </section>
+
+
+    <!-- 4. Real-Time Telemetry: Distribution Chart & Live Streaming Terminal -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- Left: Request Distribution Bar Chart -->
+      <div class="lg:col-span-5 glass-card rounded-xl p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-400 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Cluster Traffic Distribution
+          </h3>
+          <span class="text-[11px] font-mono text-slate-400" id="chart-total-label">0 total</span>
+        </div>
+        <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
+          <canvas id="distributionChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Right: Live Scrolling Terminal Log -->
+      <div class="lg:col-span-7 glass-card rounded-xl p-5 flex flex-col">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+          <div class="flex items-center space-x-2">
+            <div class="flex space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+            </div>
+            <h3 class="text-xs uppercase tracking-wider font-mono font-bold text-slate-300 ml-2">
+              Routing & Failover Terminal
+            </h3>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="flex items-center space-x-1.5 text-[11px] font-mono text-slate-400 cursor-pointer select-none">
+              <input type="checkbox" id="autoscroll-toggle" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0">
+              <span>Auto-scroll</span>
+            </label>
+            <button onclick="clearTerminalLogs()" class="px-2 py-1 text-[10px] font-mono text-slate-400 hover:text-white rounded bg-slate-800 hover:bg-slate-700 border border-slate-700">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Output Body -->
+        <div id="terminal-body" class="bg-[#090d16] border border-slate-800/80 rounded-lg p-3.5 h-[270px] overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5">
+          <div class="text-slate-500 italic">Connected to telemetry event stream. Awaiting requests...</div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- JavaScript Controller -->
+  <script>
+    // Global State
+    let currentMetrics = null;
+    let distributionChart = null;
+    let continuousStreamInterval = null;
+    let totalDispatchedCount = 0;
+    const POLLING_INTERVAL_MS = 600;
+
+    // Algorithm descriptions
+    const ALGO_DESCRIPTIONS = {
+      'round_robin': 'Cycles sequentially through currently HEALTHY backend servers (i = (i + 1) mod N).',
+      'weighted_round_robin': 'Smooth Weighted Round-Robin (NGINX algorithm): evenly interleaves traffic according to each healthy node\'s configured integer weight.',
+      'least_connections': 'Selects the HEALTHY server with minimum active in-flight connections. Tie-breaks by lowest latency and higher weight.'
+    };
+
+    // Node card color accents
+    const NODE_COLORS = {
+      'node-1': { border: 'border-indigo-500/30', bg: 'bg-indigo-500/10', text: 'text-indigo-400', chart: '#6366f1' },
+      'node-2': { border: 'border-cyan-500/30', bg: 'bg-cyan-500/10', text: 'text-cyan-400', chart: '#06b6d4' },
+      'node-3': { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', text: 'text-emerald-400', chart: '#10b981' },
+      'node-4': { border: 'border-amber-500/30', bg: 'bg-amber-500/10', text: 'text-amber-400', chart: '#f59e0b' },
+    };
+
+    // Initialize Chart.js
+    function initChart() {
+      const ctx = document.getElementById('distributionChart').getContext('2d');
+      distributionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Node 1 (8001)', 'Node 2 (8002)', 'Node 3 (8003)', 'Node 4 (8004)'],
+          datasets: [{
+            label: 'Requests Handled',
+            data: [0, 0, 0, 0],
+            backgroundColor: [
+              'rgba(99, 102, 241, 0.75)',
+              'rgba(6, 182, 212, 0.75)',
+              'rgba(16, 185, 129, 0.75)',
+              'rgba(245, 158, 11, 0.75)',
+            ],
+            borderColor: [
+              '#6366f1',
+              '#06b6d4',
+              '#10b981',
+              '#f59e0b',
+            ],
+            borderWidth: 1.5,
+            borderRadius: 6,
+            barPercentage: 0.65,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              borderColor: '#334155',
+              borderWidth: 1,
+              titleFont: { family: 'JetBrains Mono', size: 12 },
+              bodyFont: { family: 'JetBrains Mono', size: 12 },
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  return `Handled: ${context.parsed.y} requests`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.2)' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(51, 65, 85, 0.2)' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 }, precision: 0 }
+            }
+          }
+        }
+      });
+    }
+
+    // Fetch live metrics from Load Balancer
+    async function fetchMetrics() {
+      try {
+        const res = await fetch('/api/admin/metrics');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        currentMetrics = data;
+        updateUI(data);
+        document.getElementById('live-status-text').textContent = 'LIVE';
+        document.getElementById('live-status-text').className = 'text-xs font-mono text-emerald-400 font-semibold';
+        document.getElementById('live-ping-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500';
+      } catch (err) {
+        document.getElementById('live-status-text').textContent = 'DISCONNECTED';
+        document.getElementById('live-status-text').className = 'text-xs font-mono text-rose-400 font-semibold';
+        document.getElementById('live-ping-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500';
+      }
+    }
+
+    // Update UI elements
+    function updateUI(data) {
+      // 1. KPI Bar
+      document.getElementById('kpi-algo-badge').textContent = data.algorithm.toUpperCase();
+      document.getElementById('kpi-total-requests').textContent = data.total_requests.toLocaleString();
+      document.getElementById('kpi-total-retries').textContent = data.total_retries.toLocaleString();
+      document.getElementById('kpi-success-rate').textContent = data.success_rate.toFixed(1);
+      document.getElementById('kpi-success-bar').style.width = `${Math.min(100, Math.max(0, data.success_rate))}%`;
+      document.getElementById('kpi-avg-latency').textContent = data.avg_cluster_latency_ms.toFixed(1);
+      document.getElementById('kpi-active-conns').textContent = data.active_in_flight;
+      document.getElementById('kpi-healthy-nodes').textContent = data.healthy_count;
+      
+      const healthPct = (data.healthy_count / data.total_nodes) * 100;
+      const healthText = document.getElementById('kpi-cluster-health-text');
+      if (healthPct === 100) {
+        healthText.textContent = '100% Operational';
+        healthText.className = 'text-[10px] text-emerald-400 font-mono font-semibold';
+      } else if (healthPct >= 50) {
+        healthText.textContent = `${data.healthy_count}/${data.total_nodes} Degraded`;
+        healthText.className = 'text-[10px] text-amber-400 font-mono font-semibold';
+      } else {
+        healthText.textContent = 'CRITICAL POOL FAILURE';
+        healthText.className = 'text-[10px] text-rose-400 font-mono font-bold animate-pulse';
+      }
+
+      // 2. Algorithm Button styles
+      ['round_robin', 'weighted_round_robin', 'least_connections'].forEach(algo => {
+        const btn = document.getElementById(`algo-btn-${algo}`);
+        if (algo === data.algorithm) {
+          btn.className = 'algo-btn px-3 py-3 rounded-xl border border-indigo-500/60 bg-indigo-600/30 text-indigo-100 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-md shadow-indigo-500/20';
+        } else {
+          btn.className = 'algo-btn px-3 py-3 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700 font-medium text-xs flex flex-col items-center justify-center gap-1.5 transition-all';
+        }
+      });
+      document.getElementById('algo-description').textContent = ALGO_DESCRIPTIONS[data.algorithm] || '';
+
+      // 3. Render 4 Node Cards
+      renderNodeCards(data.nodes);
+
+      // 4. Update Chart
+      if (distributionChart && data.nodes) {
+        const counts = data.nodes.map(n => n.total_requests);
+        distributionChart.data.datasets[0].data = counts;
+        distributionChart.update('none'); // smooth update without full re-render
+        document.getElementById('chart-total-label').textContent = `${data.total_requests} requests handled`;
+      }
+
+      // 5. Update Terminal Logs
+      if (data.logs) {
+        renderTerminalLogs(data.logs);
+      }
+    }
+
+    // Render 4 Node Cards
+    function renderNodeCards(nodes) {
+      const container = document.getElementById('nodes-container');
+      if (!nodes) return;
+
+      // Keep user inputs (sliders, weights) from flickering if user is currently interacting
+      const activeElement = document.activeElement ? document.activeElement.id : null;
+
+      container.innerHTML = nodes.map(node => {
+        const isHealthy = node.is_healthy;
+        const color = NODE_COLORS[node.id] || { border: 'border-slate-700', bg: 'bg-slate-800', text: 'text-slate-300' };
+        const statusBadge = isHealthy 
+          ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 pulse-glow-emerald">
+               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> HEALTHY
+             </span>`
+          : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 pulse-glow-rose">
+               <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span> UNHEALTHY
+             </span>`;
+
+        const killBtnText = node.is_crashed ? 'Recover Node' : 'Kill Node';
+        const killBtnClass = node.is_crashed
+          ? 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border-emerald-500/40'
+          : 'bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border-rose-500/40';
+
+        return `
+          <div class="glass-card rounded-xl p-4.5 flex flex-col justify-between border ${isHealthy ? 'border-slate-800/90' : 'border-rose-900/60 bg-rose-950/20'} transition-all duration-200">
+            <!-- Header: Title & Status -->
+            <div>
+              <div class="flex items-center justify-between pb-2.5 border-b border-slate-800/80">
+                <div class="flex items-center space-x-2">
+                  <div class="w-2.5 h-2.5 rounded-sm ${color.bg} border ${color.border}"></div>
+                  <span class="font-mono font-bold text-sm text-white">${node.id.toUpperCase()}</span>
+                  <span class="font-mono text-xs text-slate-500">:${node.port}</span>
+                </div>
+                <div>${statusBadge}</div>
+              </div>
+
+              <!-- Metrics Grid -->
+              <div class="grid grid-cols-2 gap-2 my-3 text-xs font-mono">
+                <!-- Active In-Flight -->
+                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                  <span class="text-[10px] text-slate-500 block">ACTIVE CONNS</span>
+                  <span class="text-base font-bold ${node.active_connections > 0 ? 'text-cyan-400 animate-pulse' : 'text-slate-300'}">
+                    ${node.active_connections}
+                  </span>
+                </div>
+
+                <!-- Handled Requests & Share -->
+                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                  <span class="text-[10px] text-slate-500 block">TOTAL (SHARE)</span>
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-base font-bold text-slate-200">${node.total_requests}</span>
+                    <span class="text-[10px] text-slate-400">(${node.request_share_pct}%)</span>
+                  </div>
+                </div>
+
+                <!-- Last Latency -->
+                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                  <span class="text-[10px] text-slate-500 block">LAST LATENCY</span>
+                  <span class="text-xs font-semibold ${node.last_latency_ms > 200 ? 'text-amber-400' : 'text-emerald-400'}">
+                    ${node.last_latency_ms.toFixed(1)} ms
+                  </span>
+                </div>
+
+                <!-- Moving Avg Latency -->
+                <div class="bg-slate-900/80 rounded-lg p-2 border border-slate-800">
+                  <span class="text-[10px] text-slate-500 block">AVG LATENCY</span>
+                  <span class="text-xs font-semibold text-slate-300">${node.avg_latency_ms.toFixed(1)} ms</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Controls -->
+            <div class="space-y-2.5 pt-2 border-t border-slate-800/80">
+              
+              <!-- Weight Control -->
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span class="text-slate-400 text-[11px]">Weight (1-10):</span>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="adjustWeight('${node.id}', ${node.weight - 1})" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">-</button>
+                  <span class="font-bold text-white px-1.5 w-6 text-center">${node.weight}</span>
+                  <button onclick="adjustWeight('${node.id}', ${node.weight + 1})" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">+</button>
+                </div>
+              </div>
+
+              <!-- Latency Injection -->
+              <div>
+                <div class="flex items-center justify-between text-[11px] font-mono mb-1">
+                  <span class="text-slate-400">Latency Injection:</span>
+                  <span class="text-cyan-400 font-semibold">${node.delay_ms || 0} ms</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1">
+                  <button onclick="setNodeLatency('${node.id}', 0)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 0 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">0ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 100)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 100 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">100ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 300)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 300 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">300ms</button>
+                  <button onclick="setNodeLatency('${node.id}', 800)" class="py-1 rounded text-[10px] font-mono ${(node.delay_ms || 0) === 800 ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">800ms</button>
+                </div>
+              </div>
+
+              <!-- Kill / Recover Toggle Button -->
+              <button onclick="toggleNodeCrash('${node.id}', ${!node.is_crashed})"
+                class="w-full py-1.5 rounded-lg border font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${killBtnClass}">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${node.is_crashed ? 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' : 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'}" />
+                </svg>
+                <span>${killBtnText}</span>
+              </button>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render live terminal routing logs
+    function renderTerminalLogs(logs) {
+      const terminal = document.getElementById('terminal-body');
+      if (!logs || logs.length === 0) return;
+
+      terminal.innerHTML = logs.map(item => {
+        let statusBadge = '';
+        let rowClass = 'text-slate-300';
+
+        if (item.event_type === 'FAILOVER_DROP' || item.event_type === 'FAILOVER_CONN_ERR' || item.event_type === 'UNHEALTHY') {
+          rowClass = 'text-rose-300 bg-rose-950/30 px-1 rounded';
+          statusBadge = `<span class="text-rose-400 font-bold">[FAILOVER TRIGGERED]</span>`;
+        } else if (item.event_type === 'FAILOVER_RECOVERED') {
+          rowClass = 'text-amber-300 bg-amber-950/20 px-1 rounded';
+          statusBadge = `<span class="text-amber-400 font-bold">[RECOVERED RETRY]</span>`;
+        } else if (item.event_type === 'RECOVERED') {
+          rowClass = 'text-emerald-300 font-bold';
+          statusBadge = `<span class="text-emerald-400">[NODE ONLINE]</span>`;
+        } else {
+          statusBadge = `<span class="text-emerald-400">${item.status_code} OK</span>`;
+        }
+
+        return `
+          <div class="flex flex-wrap items-baseline gap-1.5 ${rowClass}">
+            <span class="text-slate-500 font-normal">[${item.timestamp}]</span>
+            <span class="text-indigo-400 font-semibold">Client</span>
+            <span class="text-slate-500">&rarr;</span>
+            <span class="text-slate-400">LB (${item.algorithm})</span>
+            <span class="text-slate-500">&rarr;</span>
+            <span class="text-cyan-300 font-medium">${item.target_node}</span>
+            <span class="text-slate-600">|</span>
+            ${statusBadge}
+            <span class="text-slate-600">|</span>
+            <span class="text-slate-400">${item.latency_ms}ms</span>
+          </div>
+        `;
+      }).join('');
+
+      const autoScroll = document.getElementById('autoscroll-toggle').checked;
+      if (autoScroll) {
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }
+
+    function clearTerminalLogs() {
+      document.getElementById('terminal-body').innerHTML = '<div class="text-slate-500 italic">Terminal cleared.</div>';
+    }
+
+    // -------------------------------------------------------------------------
+    // API Actions
+    // -------------------------------------------------------------------------
+    async function setAlgorithm(algo) {
+      try {
+        const res = await fetch('/api/admin/algorithm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ algorithm: algo })
+        });
+        if (res.ok) fetchMetrics();
+      } catch (e) {
+        console.error('Failed to set algorithm:', e);
+      }
+    }
+
+    async function adjustWeight(nodeId, newWeight) {
+      if (newWeight < 1 || newWeight > 10) return;
+      try {
+        await fetch(`/api/admin/node/${nodeId}/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ weight: newWeight })
+        });
+        fetchMetrics();
+      } catch (e) {
+        console.error('Failed to adjust weight:', e);
+      }
+    }
+
+    async function setNodeLatency(nodeId, delayMs) {
+      try {
+        await fetch(`/api/admin/node/${nodeId}/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ delay_ms: delayMs })
+        });
+        fetchMetrics();
+      } catch (e) {
+        console.error('Failed to set latency:', e);
+      }
+    }
+
+    async function toggleNodeCrash(nodeId, shouldCrash) {
+      try {
+        await fetch(`/api/admin/node/${nodeId}/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_crashed: shouldCrash })
+        });
+        fetchMetrics();
+      } catch (e) {
+        console.error('Failed to toggle crash state:', e);
+      }
+    }
+
+    async function resetStats() {
+      try {
+        await fetch('/api/admin/reset', { method: 'POST' });
+        totalDispatchedCount = 0;
+        document.getElementById('traffic-dispatched-counter').textContent = '0';
+        clearTerminalLogs();
+        fetchMetrics();
+      } catch (e) {
+        console.error('Failed to reset stats:', e);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Client-Side Stress Testing & Traffic Generator
+    // -------------------------------------------------------------------------
+    async function fireBatchTraffic(count) {
+      const progressLabel = document.getElementById('traffic-progress-indicator');
+      progressLabel.textContent = `Firing ${count} concurrent requests...`;
+      progressLabel.className = 'text-cyan-400 animate-pulse';
+
+      const requests = [];
+      for (let i = 0; i < count; i++) {
+        requests.push(
+          fetch('/', { cache: 'no-store' })
+            .then(r => r.json().catch(() => ({})))
+            .catch(() => null)
+        );
+      }
+
+      await Promise.all(requests);
+      totalDispatchedCount += count;
+      document.getElementById('traffic-dispatched-counter').textContent = totalDispatchedCount.toLocaleString();
+      progressLabel.textContent = `Completed batch of ${count} requests`;
+      progressLabel.className = 'text-emerald-400';
+      fetchMetrics();
+    }
+
+    function toggleContinuousStream() {
+      const btn = document.getElementById('btn-stream-toggle');
+      const label = document.getElementById('stream-btn-label');
+      const pill = document.getElementById('traffic-status-pill');
+
+      if (continuousStreamInterval) {
+        clearInterval(continuousStreamInterval);
+        continuousStreamInterval = null;
+        label.textContent = 'Stream: OFF';
+        label.className = 'font-mono text-emerald-400 font-bold';
+        pill.classList.add('hidden');
+        pill.classList.remove('flex');
+        document.getElementById('traffic-progress-indicator').textContent = 'Stream stopped';
+      } else {
+        pill.classList.remove('hidden');
+        pill.classList.add('flex');
+        label.textContent = 'Stream: ACTIVE';
+        label.className = 'font-mono text-rose-400 font-bold animate-pulse';
+        document.getElementById('traffic-progress-indicator').textContent = 'Streaming 10 req/s...';
+
+        // Fire 1 request every 100ms = 10 req/s
+        continuousStreamInterval = setInterval(() => {
+          fetch('/', { cache: 'no-store' })
+            .then(r => r.json().catch(() => ({})))
+            .catch(() => null);
+          totalDispatchedCount++;
+          document.getElementById('traffic-dispatched-counter').textContent = totalDispatchedCount.toLocaleString();
+        }, 100);
+      }
+    }
+
+    // Startup on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      fetchMetrics();
+      setInterval(fetchMetrics, POLLING_INTERVAL_MS);
+    });
+  </script>
+</body>
+</html>
